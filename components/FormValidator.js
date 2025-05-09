@@ -1,6 +1,5 @@
 class FormValidator {
   constructor(settings, formEl) {
-    this._settings = settings;
     this._formEl = formEl;
     this._formSelector = settings.formSelector;
     this._inputSelector = settings.inputSelector;
@@ -41,7 +40,8 @@ class FormValidator {
     }
   }
 
-  _resetValidation() {
+  resetValidation() {
+    this._formEl.reset();
     this._inputList.forEach((inputElement) => {
       this._hideInputError(inputElement);
     });
@@ -80,9 +80,9 @@ class FormValidator {
     
   this._formEl.addEventListener("submit", (evt) => {
     evt.preventDefault();
+    this.resetValidation(); 
   });
   this._setEventListeners();
-
   }
 }
 
