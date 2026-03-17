@@ -8,17 +8,25 @@ import TodoCounter from "../components/TodoCounter.js";
 
 const addTodoButton = document.querySelector(".button_action_add");
 const addTodoForm = document.forms["add-todo-form"];
+const todosList = document.querySelector(".todos__list");
+const emptyMessage = document.querySelector(".todos__empty-message");
 
 const counter = new TodoCounter(initialTodos, ".counter");
 
+const updateEmptyState = () => {
+  const hasTodos = todosList.querySelector(".todo") !== null;
+  emptyMessage.hidden = hasTodos;
+};
+
 function generateTodo(todoData) {
-  const todo = new Todo(todoData, "#todo-template", counter);
+  const todo = new Todo(todoData, "#todo-template", counter, updateEmptyState);
   return todo.getView();
 }
 
 const renderTodo = (todoData) => {
   const todoElement = generateTodo(todoData);
   section.addItem(todoElement);
+  updateEmptyState();
 };
 
 const section = new Section({
@@ -30,23 +38,21 @@ const section = new Section({
 });
 
 section.renderItems();
+updateEmptyState();
 
 const popupWithForm = new PopupWithForm("#add-todo-popup", (data) => {
   const date = new Date(data.date);
   date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
 
-  const id = uuidv4();
   const todoData = {
     name: data.name,
     date,
-    id,
+    id: uuidv4(),
     completed: false,
   };
 
   renderTodo(todoData);
   counter.updateTotal(true);
-  if (todoData.completed) counter.updateCompleted(true);
-
   popupWithForm.close();
 });
 

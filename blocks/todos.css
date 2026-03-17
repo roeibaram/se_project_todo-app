@@ -4,5 +4,15 @@
   list-style-type: none;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
+}
+
+.todos__empty-message {
+  margin: 16px 0 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed rgba(176, 195, 255, 0.4);
+  background: rgba(13, 20, 45, 0.55);
+  color: #c2d2ff;
+  font-size: 14px;
 }

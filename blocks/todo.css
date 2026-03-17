@@ -1,10 +1,26 @@
 .todo {
   font-family: Inter, Arial, sans-serif;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  background: linear-gradient(130deg, rgba(25, 36, 74, 0.9), rgba(13, 18, 42, 0.98));
+  border-radius: 12px;
+  border: 1px solid rgba(177, 192, 255, 0.3);
   padding: 12px;
   display: flex;
   gap: 20px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.todo:hover {
+  border-color: rgba(125, 206, 255, 0.58);
+  transform: translateY(-1px);
+}
+
+.todo_completed {
+  border-color: rgba(123, 255, 182, 0.38);
+  background: linear-gradient(130deg, rgba(17, 35, 63, 0.92), rgba(10, 18, 35, 0.98));
+}
+
+.todo_overdue {
+  border-color: rgba(255, 120, 120, 0.64);
 }
 
 .todo__label {
@@ -19,9 +35,10 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  border: 1px solid #181818;
+  border: 1px solid rgba(200, 213, 255, 0.8);
   border-radius: 4px;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .todo__completed:checked {
@@ -32,11 +49,9 @@
 
 .todo__name {
   font-weight: 500;
-  color: #181818;
+  color: #f4f7ff;
   font-size: 20px;
   line-height: 1.2;
-
-  /* Truncate text with ellipses, maximum of two rows. */
   text-overflow: ellipsis;
   overflow: hidden;
   display: -webkit-box;
@@ -44,12 +59,21 @@
   -webkit-box-orient: vertical;
 }
 
+.todo_completed .todo__name {
+  text-decoration: line-through;
+  color: #98a8d7;
+}
+
 .todo__date {
   font-weight: 400;
-  color: #7d7d7d;
-  font-size: 20px;
+  color: #99aad8;
+  font-size: 15px;
   line-height: 1.2;
   flex-shrink: 0;
+}
+
+.todo_overdue .todo__date {
+  color: #ff8f8f;
 }
 
 .todo__buttons {
@@ -63,10 +87,10 @@
   border: none;
   padding: 0;
   background-color: transparent;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.2;
-  font-weight: 500;
-  color: #f44;
+  font-weight: 600;
+  color: #ff7c8f;
   cursor: pointer;
 }
 

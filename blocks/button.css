@@ -17,21 +17,27 @@
 }
 
 .button_action_add {
-  padding: 12px 16px;
-  background-color: #5877e7;
-  border-radius: 8px;
-  border: 2px solid #fff;
-  transition: 0.3s;
+  padding: 12px 18px;
+  background: linear-gradient(130deg, #78f0ff, #6d87ff 42%, #9c56ff);
+  border-radius: 10px;
+  border: 1px solid rgba(219, 232, 255, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   font-family: Inter, Arial, sans-serif;
-  color: #fff;
-  font-size: 20px;
+  color: #061128;
+  font-size: 18px;
   line-height: 1.2;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.button_action_add:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(70, 130, 255, 0.38);
 }
 
 @media screen and (max-width: 630px) {
   .button_action_add {
+    width: 100%;
     font-size: 16px;
   }
 }

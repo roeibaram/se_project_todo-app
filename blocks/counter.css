@@ -4,9 +4,9 @@
 
 .counter__text {
   font-family: Inter, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.2;
-  font-weight: 400;
-  color: #7d7d7d;
+  font-weight: 500;
+  color: #c6d5ff;
   margin: 0;
 }

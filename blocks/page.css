@@ -1,28 +1,37 @@
 .page {
-  background-color: #f5f5f5;
+  background:
+    radial-gradient(circle at 10% 0, rgba(136, 99, 255, 0.25), transparent 40%),
+    radial-gradient(circle at 85% 12%, rgba(67, 174, 255, 0.22), transparent 38%),
+    #090b15;
   padding: 20px;
   min-height: 100vh;
 }
 
 .page__content {
-  background-color: #fff;
+  background: linear-gradient(156deg, rgba(20, 28, 58, 0.94), rgba(8, 12, 28, 0.98));
   margin: 0 auto;
-  max-width: 726px;
+  max-width: 760px;
   min-height: 782px;
   box-sizing: border-box;
-  border-radius: 16px;
-  box-shadow: 0px 4px 8px 0px #000000;
+  border-radius: 20px;
+  border: 1px solid rgba(180, 195, 255, 0.32);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
   padding: 20px;
 }
 
 @media screen and (max-width: 1030px) {
   .page__content {
-    margin-top: 52px;
+    margin-top: 20px;
   }
 }
 
 @media screen and (max-width: 630px) {
+  .page {
+    padding: 10px;
+  }
+
   .page__content {
-    padding: 20px 12px;
+    padding: 16px 12px;
+    border-radius: 14px;
   }
 }
