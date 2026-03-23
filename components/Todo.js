@@ -1,8 +1,8 @@
 export default class Todo {
-  constructor(data, selector, counter, onDelete) {
+  constructor(data, selector, counter, onStateChange) {
     this._data = data;
     this._counter = counter;
-    this._onDelete = onDelete;
+    this._onStateChange = onStateChange;
     this._templateElement = document.querySelector(selector);
   }
 
@@ -11,10 +11,17 @@ export default class Todo {
 
     const dueDate = new Date(this._data.date);
     const isPastDue = !Number.isNaN(dueDate) && dueDate < new Date();
+
     this._todoElement.classList.toggle(
       "todo_overdue",
       isPastDue && !this._data.completed
     );
+  }
+
+  _notifyChange() {
+    if (typeof this._onStateChange === "function") {
+      this._onStateChange();
+    }
   }
 
   _setEventListeners() {
@@ -22,6 +29,7 @@ export default class Todo {
       this._data.completed = !this._data.completed;
       this._counter.updateCompleted(this._data.completed);
       this._syncStateClasses();
+      this._notifyChange();
     });
 
     this._todoDeleteBtn.addEventListener("click", () => {
@@ -32,9 +40,7 @@ export default class Todo {
         this._counter.updateCompleted(false);
       }
 
-      if (typeof this._onDelete === "function") {
-        this._onDelete();
-      }
+      this._notifyChange();
     });
   }
 

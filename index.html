@@ -69,6 +69,22 @@
           <section class="counter">
             <h2 class="counter__text">Showing X out of Y completed</h2>
           </section>
+
+          <section class="todos__toolbar" aria-label="Task controls">
+            <div class="todos__filters">
+              <button class="todos__filter-btn todos__filter-btn_active" data-filter="all" type="button">
+                All
+              </button>
+              <button class="todos__filter-btn" data-filter="active" type="button">
+                Active
+              </button>
+              <button class="todos__filter-btn" data-filter="completed" type="button">
+                Completed
+              </button>
+            </div>
+            <button class="todos__clear-completed" type="button">Clear Completed</button>
+          </section>
+
           <section class="todos">
             <ul class="todos__list">
               <template id="todo-template">
