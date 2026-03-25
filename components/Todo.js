@@ -6,6 +6,13 @@ export default class Todo {
     this._templateElement = document.querySelector(selector);
   }
 
+  _syncDataAttributes() {
+    this._todoElement.dataset.id = this._data.id;
+    this._todoElement.dataset.name = this._data.name;
+    this._todoElement.dataset.date = this._data.date || "";
+    this._todoElement.dataset.completed = String(this._data.completed);
+  }
+
   _syncStateClasses() {
     this._todoElement.classList.toggle("todo_completed", this._data.completed);
 
@@ -27,6 +34,7 @@ export default class Todo {
   _setEventListeners() {
     this._todoCheckboxEl.addEventListener("change", () => {
       this._data.completed = !this._data.completed;
+      this._todoElement.dataset.completed = String(this._data.completed);
       this._counter.updateCompleted(this._data.completed);
       this._syncStateClasses();
       this._notifyChange();
@@ -78,6 +86,7 @@ export default class Todo {
     this._generateCheckboxEl();
     this._setEventListeners();
     this._generateDate();
+    this._syncDataAttributes();
     this._syncStateClasses();
 
     return this._todoElement;

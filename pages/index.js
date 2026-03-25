@@ -6,6 +6,8 @@ import FormValidator from "../components/FormValidator.js";
 import PopupWithForm from "../components/PopupWithForm.js";
 import TodoCounter from "../components/TodoCounter.js";
 
+const STORAGE_KEY = "todo-items-storage";
+
 const addTodoButton = document.querySelector(".button_action_add");
 const addTodoForm = document.forms["add-todo-form"];
 const todosList = document.querySelector(".todos__list");
@@ -15,9 +17,58 @@ const clearCompletedButton = document.querySelector(".todos__clear-completed");
 
 let activeFilter = "all";
 
-const counter = new TodoCounter(initialTodos, ".counter");
+const normalizeTodo = (todo) => {
+  const normalizedDate = todo.date ? new Date(todo.date) : null;
+
+  return {
+    id: todo.id || uuidv4(),
+    name: String(todo.name || "Untitled task"),
+    completed: Boolean(todo.completed),
+    date:
+      normalizedDate && !Number.isNaN(normalizedDate)
+        ? normalizedDate.toISOString()
+        : "",
+  };
+};
+
+const loadTodosFromStorage = () => {
+  const storedValue = localStorage.getItem(STORAGE_KEY);
+
+  if (!storedValue) {
+    return initialTodos.map((todo) => normalizeTodo(todo));
+  }
+
+  try {
+    const parsedValue = JSON.parse(storedValue);
+    if (!Array.isArray(parsedValue)) {
+      return initialTodos.map((todo) => normalizeTodo(todo));
+    }
+
+    return parsedValue.map((todo) => normalizeTodo(todo));
+  } catch {
+    return initialTodos.map((todo) => normalizeTodo(todo));
+  }
+};
+
+const todoSeed = loadTodosFromStorage();
+const counter = new TodoCounter(todoSeed, ".counter");
 
 const getTodoItems = () => Array.from(todosList.querySelectorAll(".todo"));
+
+const saveTodosToStorage = () => {
+  const todoPayload = getTodoItems().map((item) => {
+    const checkbox = item.querySelector(".todo__completed");
+
+    return {
+      id: item.dataset.id,
+      name: item.dataset.name,
+      date: item.dataset.date,
+      completed: checkbox ? checkbox.checked : false,
+    };
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(todoPayload));
+};
 
 const syncCounterFromDom = () => {
   const todoItems = getTodoItems();
@@ -68,14 +119,18 @@ const updateToolbarState = () => {
   clearCompletedButton.disabled = !hasCompletedTodos;
 };
 
-const refreshUi = () => {
+const refreshUi = ({ persist = false } = {}) => {
   applyFilter();
   updateEmptyState();
   updateToolbarState();
+
+  if (persist) {
+    saveTodosToStorage();
+  }
 };
 
 const handleTodoStateChange = () => {
-  refreshUi();
+  refreshUi({ persist: true });
 };
 
 function generateTodo(todoData) {
@@ -83,37 +138,40 @@ function generateTodo(todoData) {
   return todo.getView();
 }
 
-const renderTodo = (todoData) => {
+const renderTodo = (todoData, { persist = true } = {}) => {
   const todoElement = generateTodo(todoData);
   section.addItem(todoElement);
-  refreshUi();
+  refreshUi({ persist });
 };
 
 const section = new Section({
-  items: initialTodos,
+  items: todoSeed,
   renderer: (item) => {
-    renderTodo(item);
+    renderTodo(item, { persist: false });
   },
   containerSelector: ".todos__list",
 });
 
 section.renderItems();
-refreshUi();
+refreshUi({ persist: true });
 
 const popupWithForm = new PopupWithForm("#add-todo-popup", (data) => {
-  const date = new Date(data.date);
-  date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+  const dateValue = data.date ? new Date(data.date) : null;
+
+  if (dateValue) {
+    dateValue.setMinutes(dateValue.getMinutes() + dateValue.getTimezoneOffset());
+  }
 
   const todoData = {
     name: data.name,
-    date,
+    date: dateValue ? dateValue.toISOString() : "",
     id: uuidv4(),
     completed: false,
   };
 
   renderTodo(todoData);
   counter.updateTotal(true);
-  refreshUi();
+  refreshUi({ persist: true });
   popupWithForm.close();
 });
 
@@ -137,7 +195,7 @@ clearCompletedButton.addEventListener("click", () => {
   });
 
   syncCounterFromDom();
-  refreshUi();
+  refreshUi({ persist: true });
 });
 
 const newFormValidator = new FormValidator(validationConfig, addTodoForm);
