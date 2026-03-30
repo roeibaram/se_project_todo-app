@@ -14,8 +14,11 @@ const todosList = document.querySelector(".todos__list");
 const emptyMessage = document.querySelector(".todos__empty-message");
 const filterButtons = Array.from(document.querySelectorAll(".todos__filter-btn"));
 const clearCompletedButton = document.querySelector(".todos__clear-completed");
+const searchInput = document.querySelector(".todos__search");
+const searchClearButton = document.querySelector(".todos__search-clear");
 
 let activeFilter = "all";
+let searchQuery = "";
 
 const normalizeTodo = (todo) => {
   const normalizedDate = todo.date ? new Date(todo.date) : null;
@@ -40,6 +43,7 @@ const loadTodosFromStorage = () => {
 
   try {
     const parsedValue = JSON.parse(storedValue);
+
     if (!Array.isArray(parsedValue)) {
       return initialTodos.map((todo) => normalizeTodo(todo));
     }
@@ -86,6 +90,16 @@ const updateEmptyState = () => {
   emptyMessage.hidden = visibleTodos > 0;
 
   if (!emptyMessage.hidden) {
+    if (searchQuery && activeFilter !== "all") {
+      emptyMessage.textContent = `No ${activeFilter} tasks match "${searchQuery}".`;
+      return;
+    }
+
+    if (searchQuery) {
+      emptyMessage.textContent = `No tasks match "${searchQuery}".`;
+      return;
+    }
+
     emptyMessage.textContent =
       activeFilter === "all"
         ? "No tasks yet. Add your first todo to get started."
@@ -98,13 +112,19 @@ const applyFilter = () => {
     const checkbox = item.querySelector(".todo__completed");
     const isCompleted = checkbox ? checkbox.checked : false;
 
+    const nameMatches = !searchQuery
+      ? true
+      : item.dataset.name.toLowerCase().includes(searchQuery);
+
+    let matchesFilter = true;
+
     if (activeFilter === "active") {
-      item.hidden = isCompleted;
+      matchesFilter = !isCompleted;
     } else if (activeFilter === "completed") {
-      item.hidden = !isCompleted;
-    } else {
-      item.hidden = false;
+      matchesFilter = isCompleted;
     }
+
+    item.hidden = !(matchesFilter && nameMatches);
   });
 };
 
@@ -117,6 +137,8 @@ const updateToolbarState = () => {
   const hasCompletedTodos =
     todosList.querySelectorAll(".todo .todo__completed:checked").length > 0;
   clearCompletedButton.disabled = !hasCompletedTodos;
+
+  searchClearButton.hidden = !searchQuery;
 };
 
 const refreshUi = ({ persist = false } = {}) => {
@@ -196,6 +218,17 @@ clearCompletedButton.addEventListener("click", () => {
 
   syncCounterFromDom();
   refreshUi({ persist: true });
+});
+
+searchInput.addEventListener("input", () => {
+  searchQuery = searchInput.value.trim().toLowerCase();
+  refreshUi();
+});
+
+searchClearButton.addEventListener("click", () => {
+  searchInput.value = "";
+  searchQuery = "";
+  refreshUi();
 });
 
 const newFormValidator = new FormValidator(validationConfig, addTodoForm);
