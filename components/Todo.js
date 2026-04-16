@@ -10,6 +10,7 @@ export default class Todo {
     this._todoElement.dataset.id = this._data.id;
     this._todoElement.dataset.name = this._data.name;
     this._todoElement.dataset.date = this._data.date || "";
+    this._todoElement.dataset.createdAt = this._data.createdAt || "";
     this._todoElement.dataset.completed = String(this._data.completed);
   }
 

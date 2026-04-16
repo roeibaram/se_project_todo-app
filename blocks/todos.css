@@ -47,6 +47,25 @@
   cursor: pointer;
 }
 
+.todos__sort-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d2ddff;
+}
+
+.todos__sort-select {
+  min-height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(171, 191, 255, 0.4);
+  background: rgba(10, 18, 45, 0.88);
+  color: #dce7ff;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
 .todos__filter-btn,
 .todos__clear-completed {
   min-height: 34px;

@@ -16,21 +16,33 @@ const filterButtons = Array.from(document.querySelectorAll(".todos__filter-btn")
 const clearCompletedButton = document.querySelector(".todos__clear-completed");
 const searchInput = document.querySelector(".todos__search");
 const searchClearButton = document.querySelector(".todos__search-clear");
+const sortSelect = document.querySelector(".todos__sort-select");
 
 let activeFilter = "all";
 let searchQuery = "";
+let sortMode = "added";
+
+const toTimestamp = (value, fallback = Number.POSITIVE_INFINITY) => {
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? fallback : parsed;
+};
 
 const normalizeTodo = (todo) => {
-  const normalizedDate = todo.date ? new Date(todo.date) : null;
+  const normalizedDueDate = todo.date ? new Date(todo.date) : null;
+  const normalizedCreatedAt = todo.createdAt ? new Date(todo.createdAt) : new Date();
 
   return {
     id: todo.id || uuidv4(),
     name: String(todo.name || "Untitled task"),
     completed: Boolean(todo.completed),
     date:
-      normalizedDate && !Number.isNaN(normalizedDate)
-        ? normalizedDate.toISOString()
+      normalizedDueDate && !Number.isNaN(normalizedDueDate)
+        ? normalizedDueDate.toISOString()
         : "",
+    createdAt:
+      normalizedCreatedAt && !Number.isNaN(normalizedCreatedAt)
+        ? normalizedCreatedAt.toISOString()
+        : new Date().toISOString(),
   };
 };
 
@@ -67,6 +79,7 @@ const saveTodosToStorage = () => {
       id: item.dataset.id,
       name: item.dataset.name,
       date: item.dataset.date,
+      createdAt: item.dataset.createdAt,
       completed: checkbox ? checkbox.checked : false,
     };
   });
@@ -82,6 +95,33 @@ const syncCounterFromDom = () => {
   }).length;
 
   counter.setCounts(todoItems.length, completedCount);
+};
+
+const sortTodoItems = () => {
+  const sortedItems = getTodoItems().sort((itemA, itemB) => {
+    if (sortMode === "name") {
+      return itemA.dataset.name.localeCompare(itemB.dataset.name);
+    }
+
+    if (sortMode === "date") {
+      const firstDate = toTimestamp(itemA.dataset.date);
+      const secondDate = toTimestamp(itemB.dataset.date);
+
+      if (firstDate === secondDate) {
+        return itemA.dataset.name.localeCompare(itemB.dataset.name);
+      }
+
+      return firstDate - secondDate;
+    }
+
+    const firstCreatedAt = toTimestamp(itemA.dataset.createdAt, 0);
+    const secondCreatedAt = toTimestamp(itemB.dataset.createdAt, 0);
+    return firstCreatedAt - secondCreatedAt;
+  });
+
+  sortedItems.forEach((item) => {
+    todosList.append(item);
+  });
 };
 
 const updateEmptyState = () => {
@@ -139,9 +179,11 @@ const updateToolbarState = () => {
   clearCompletedButton.disabled = !hasCompletedTodos;
 
   searchClearButton.hidden = !searchQuery;
+  sortSelect.value = sortMode;
 };
 
 const refreshUi = ({ persist = false } = {}) => {
+  sortTodoItems();
   applyFilter();
   updateEmptyState();
   updateToolbarState();
@@ -187,6 +229,7 @@ const popupWithForm = new PopupWithForm("#add-todo-popup", (data) => {
   const todoData = {
     name: data.name,
     date: dateValue ? dateValue.toISOString() : "",
+    createdAt: new Date().toISOString(),
     id: uuidv4(),
     completed: false,
   };
@@ -229,6 +272,11 @@ searchClearButton.addEventListener("click", () => {
   searchInput.value = "";
   searchQuery = "";
   refreshUi();
+});
+
+sortSelect.addEventListener("change", () => {
+  sortMode = sortSelect.value;
+  refreshUi({ persist: true });
 });
 
 const newFormValidator = new FormValidator(validationConfig, addTodoForm);
