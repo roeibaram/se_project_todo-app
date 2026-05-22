@@ -7,6 +7,7 @@ import PopupWithForm from "../components/PopupWithForm.js";
 import TodoCounter from "../components/TodoCounter.js";
 
 const STORAGE_KEY = "todo-items-storage";
+const VIEW_STATE_KEY = "todo-view-state";
 
 const addTodoButton = document.querySelector(".button_action_add");
 const addTodoForm = document.forms["add-todo-form"];
@@ -18,13 +19,50 @@ const searchInput = document.querySelector(".todos__search");
 const searchClearButton = document.querySelector(".todos__search-clear");
 const sortSelect = document.querySelector(".todos__sort-select");
 
-let activeFilter = "all";
-let searchQuery = "";
-let sortMode = "added";
+const initialViewState = loadViewState();
+
+let activeFilter = initialViewState.activeFilter;
+let searchQuery = initialViewState.searchText.trim().toLowerCase();
+let sortMode = initialViewState.sortMode;
 
 const toTimestamp = (value, fallback = Number.POSITIVE_INFINITY) => {
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? fallback : parsed;
+};
+
+const loadViewState = () => {
+  const fallbackState = {
+    activeFilter: "all",
+    searchText: "",
+    sortMode: "added",
+  };
+
+  const storedValue = localStorage.getItem(VIEW_STATE_KEY);
+
+  if (!storedValue) {
+    return fallbackState;
+  }
+
+  try {
+    const parsedValue = JSON.parse(storedValue);
+    const nextFilter = ["all", "active", "completed"].includes(parsedValue.activeFilter)
+      ? parsedValue.activeFilter
+      : fallbackState.activeFilter;
+    const nextSortMode = ["added", "date", "name"].includes(parsedValue.sortMode)
+      ? parsedValue.sortMode
+      : fallbackState.sortMode;
+
+    return {
+      activeFilter: nextFilter,
+      searchText:
+        typeof parsedValue.searchText === "string"
+          ? parsedValue.searchText
+          : fallbackState.searchText,
+      sortMode: nextSortMode,
+    };
+  } catch {
+    return fallbackState;
+  }
 };
 
 const normalizeTodo = (todo) => {
@@ -85,6 +123,17 @@ const saveTodosToStorage = () => {
   });
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(todoPayload));
+};
+
+const saveViewState = () => {
+  localStorage.setItem(
+    VIEW_STATE_KEY,
+    JSON.stringify({
+      activeFilter,
+      searchText: searchInput.value,
+      sortMode,
+    })
+  );
 };
 
 const syncCounterFromDom = () => {
@@ -187,6 +236,7 @@ const refreshUi = ({ persist = false } = {}) => {
   applyFilter();
   updateEmptyState();
   updateToolbarState();
+  saveViewState();
 
   if (persist) {
     saveTodosToStorage();
@@ -216,6 +266,7 @@ const section = new Section({
   containerSelector: ".todos__list",
 });
 
+searchInput.value = initialViewState.searchText;
 section.renderItems();
 refreshUi({ persist: true });
 
