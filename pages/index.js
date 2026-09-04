@@ -19,12 +19,6 @@ const searchInput = document.querySelector(".todos__search");
 const searchClearButton = document.querySelector(".todos__search-clear");
 const sortSelect = document.querySelector(".todos__sort-select");
 
-const initialViewState = loadViewState();
-
-let activeFilter = initialViewState.activeFilter;
-let searchQuery = initialViewState.searchText.trim().toLowerCase();
-let sortMode = initialViewState.sortMode;
-
 const toTimestamp = (value, fallback = Number.POSITIVE_INFINITY) => {
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? fallback : parsed;
@@ -64,6 +58,12 @@ const loadViewState = () => {
     return fallbackState;
   }
 };
+
+const initialViewState = loadViewState();
+
+let activeFilter = initialViewState.activeFilter;
+let searchQuery = initialViewState.searchText.trim().toLowerCase();
+let sortMode = initialViewState.sortMode;
 
 const normalizeTodo = (todo) => {
   const normalizedDueDate = todo.date ? new Date(todo.date) : null;
